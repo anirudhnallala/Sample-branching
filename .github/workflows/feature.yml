@@ -8,6 +8,7 @@ on:
 jobs:
   build:
     runs-on: ubuntu-latest
+
     steps:
       - name: Checkout code
         uses: actions/checkout@v3
@@ -22,3 +23,17 @@ jobs:
 
       - name: Run tests
         run: echo "🧪 Add tests here!"
+
+      - name: Notify Slack - Success
+        if: success()
+        run: |
+          curl -X POST -H 'Content-type: application/json' \
+          --data '{"text":"✅ Build succeeded for feature branch: ${{ github.ref_name }}"}' \
+          ${{ secrets.SLACK_WEBHOOK }}
+
+      - name: Notify Slack - Failure
+        if: failure()
+        run: |
+          curl -X POST -H 'Content-type: application/json' \
+          --data '{"text":"❌ Build failed for feature branch: ${{ github.ref_name }}"}' \
+          ${{ secrets.SLACK_WEBHOOK }}
